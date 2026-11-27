@@ -1,14 +1,21 @@
+mod processes;
+#[cfg(target_os = "linux")]
+mod storage;
+
 use eframe::egui;
 use shadcn_egui::components::tabs::{Tabs, TabsVariant};
 use shadcn_egui::style::{AppVariant, Paint, Radius, Role};
 
-const TAB_LABELS: [&str; 3] = ["Tab 1", "Tab 2", "Tab 3"];
+const TAB_LABELS: [&str; 3] = ["Processes", "Storage", "Tab 3"];
 const NOTEBOOK_TABS: AppVariant<TabsVariant> = TabsVariant::app("notebook");
+const LOGO: &[u8] = include_bytes!("../assets/dominion.png");
 
-#[derive(Default)]
 struct Dominion {
     startup_window_ready: bool,
     active_tab: usize,
+    processes: processes::ProcessTable,
+    #[cfg(target_os = "linux")]
+    storage: storage::Storage,
 }
 
 impl eframe::App for Dominion {
@@ -38,20 +45,68 @@ impl eframe::App for Dominion {
             });
 
         egui::CentralPanel::default().show(ui, |ui| {
-            ui.centered_and_justified(|ui| {
-                ui.heading(if self.active_tab == 0 {
-                    "Hello World"
-                } else {
-                    TAB_LABELS[self.active_tab]
+            if self.active_tab == 0 {
+                self.processes.show(ui);
+            } else if self.active_tab == 1 {
+                #[cfg(target_os = "linux")]
+                self.storage.show(ui);
+                #[cfg(not(target_os = "linux"))]
+                ui.weak("Storage inventory is available on Linux.");
+            } else {
+                ui.centered_and_justified(|ui| {
+                    ui.heading(TAB_LABELS[self.active_tab]);
                 });
-            });
+            }
         });
     }
 }
 
-fn main() -> eframe::Result {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let args: Vec<_> = std::env::args_os().skip(1).collect();
+    match args.as_slice() {
+        [] => run_desktop()?,
+        [flag] if flag == "--version" || flag == "-V" => {
+            println!("Dominion {}", env!("CARGO_PKG_VERSION"));
+        }
+        [flag] if flag == "--help" || flag == "-h" => {
+            println!(
+                "Usage: dominion [--desktop | --update [--stable | --edge] | --version]\n\n\
+                 With no options, open the app.\n\
+                 --desktop  Add Dominion to the Linux app menu.\n\
+                 --update   Update this installation from GitHub."
+            );
+        }
+        #[cfg(target_os = "linux")]
+        [flag] if flag == "--print-icon" => {
+            use std::io::Write;
+            std::io::stdout().lock().write_all(LOGO)?;
+        }
+        #[cfg(target_os = "linux")]
+        [flag, ..] if flag == "--desktop" || flag == "--update" => {
+            let executable = std::env::current_exe()?;
+            let mut installer = std::process::Command::new("sh");
+            installer
+                .args(["-c", include_str!("../install.sh"), "dominion"])
+                .env("DOMINION_EXECUTABLE", executable);
+            if flag == "--desktop" && args.len() == 1 {
+                installer.arg("--register-only");
+            }
+            let status = installer.args(args).status()?;
+            if !status.success() {
+                std::process::exit(status.code().unwrap_or(1));
+            }
+        }
+        _ => return Err("Unsupported arguments. Run dominion --help.".into()),
+    }
+    Ok(())
+}
+
+fn run_desktop() -> eframe::Result {
+    let icon = eframe::icon_data::from_png_bytes(LOGO).expect("valid Dominion icon");
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
+            .with_app_id("dominion")
+            .with_icon(icon)
             .with_maximized(true)
             .with_min_inner_size([240.0, 160.0]),
         ..Default::default()
@@ -80,7 +135,13 @@ fn main() -> eframe::Result {
                     tab.bg.set(Paint::Role(Role::Muted, 1.0));
                 })
                 .apply(&creation_context.egui_ctx);
-            Ok(Box::new(Dominion::default()))
+            Ok(Box::new(Dominion {
+                startup_window_ready: false,
+                active_tab: 0,
+                processes: processes::ProcessTable::new(creation_context.egui_ctx.clone()),
+                #[cfg(target_os = "linux")]
+                storage: storage::Storage::default(),
+            }))
         }),
     )
 }
