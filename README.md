@@ -1,8 +1,8 @@
 # Dominion
 
-**Your resources. Your dictatorship.**
+Dominion is a planned system-wide resource manager that lets you be the dictator of your own computer’s resources. Chrome gets 1 GB of RAM because you said so.
 
-Dominion is a planned system-wide resource manager. It will let you monitor CPU, memory, disk I/O, and network usage and set limits for individual applications from one place.
+Monitor CPU, memory, disk I/O, and network usage, and set limits for individual apps from one place.
 
 ## Status
 
