@@ -27,7 +27,7 @@ dominion --update --edge    # Switch to edge
 dominion --update --stable  # Switch to stable
 ```
 
-For a first-time edge install, use `sh install.sh --edge --desktop`. The script also accepts `--update` for an existing install in `~/.local/bin`. Edge is a rolling prerelease channel. Its first build matches stable.
+For a first-time edge install, use `sh install.sh --edge --desktop`. The script also accepts `--update` for an existing install in `~/.local/bin`. Edge is a rolling prerelease channel.
 
 ### Cargo Binstall
 

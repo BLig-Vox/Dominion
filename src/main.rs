@@ -13,6 +13,7 @@ const LOGO: &[u8] = include_bytes!("../assets/dominion.png");
 struct Dominion {
     startup_window_ready: bool,
     active_tab: usize,
+    logo: egui::TextureHandle,
     processes: processes::ProcessTable,
     #[cfg(target_os = "linux")]
     storage: storage::Storage,
@@ -37,11 +38,14 @@ impl eframe::App for Dominion {
                 bottom: 0,
             }))
             .show(ui, |ui| {
-                ui.add(
-                    Tabs::new(&mut self.active_tab, &TAB_LABELS)
-                        .variant(NOTEBOOK_TABS)
-                        .width(228.0),
-                );
+                ui.horizontal(|ui| {
+                    ui.image((self.logo.id(), egui::vec2(24.0, 24.0)));
+                    ui.add(
+                        Tabs::new(&mut self.active_tab, &TAB_LABELS)
+                            .variant(NOTEBOOK_TABS)
+                            .width(228.0),
+                    );
+                });
             });
 
         egui::CentralPanel::default().show(ui, |ui| {
@@ -103,6 +107,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 fn run_desktop() -> eframe::Result {
     let icon = eframe::icon_data::from_png_bytes(LOGO).expect("valid Dominion icon");
+    let logo = egui::ColorImage::from_rgba_unmultiplied(
+        [icon.width as usize, icon.height as usize],
+        &icon.rgba,
+    );
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_app_id("dominion")
@@ -115,7 +123,7 @@ fn run_desktop() -> eframe::Result {
     eframe::run_native(
         "Dominion",
         options,
-        Box::new(|creation_context| {
+        Box::new(move |creation_context| {
             creation_context.egui_ctx.set_theme(egui::Theme::Dark);
             shadcn_egui::Theme::vega()
                 .variant(NOTEBOOK_TABS, TabsVariant::Default, |recipes, _| {
@@ -138,6 +146,11 @@ fn run_desktop() -> eframe::Result {
             Ok(Box::new(Dominion {
                 startup_window_ready: false,
                 active_tab: 0,
+                logo: creation_context.egui_ctx.load_texture(
+                    "Dominion logo",
+                    logo,
+                    egui::TextureOptions::LINEAR,
+                ),
                 processes: processes::ProcessTable::new(creation_context.egui_ctx.clone()),
                 #[cfg(target_os = "linux")]
                 storage: storage::Storage::default(),
