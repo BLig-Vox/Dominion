@@ -13,7 +13,7 @@ Releases support x86-64 Linux with glibc 2.36 or newer and an X11 or Wayland des
 
 ```sh
 gh auth login
-gh release download --repo alexander-vox/Dominion --pattern install.sh
+gh release download --repo BLig-Vox/Dominion --pattern install.sh
 sh install.sh --desktop
 ```
 
@@ -34,7 +34,7 @@ For a first-time edge install, use `sh install.sh --edge --desktop`. The script 
 The tagged stable build is also available through Cargo Binstall. Use the GitHub repository as the manifest source.
 
 ```sh
-cargo binstall --git https://github.com/alexander-vox/Dominion.git dominion
+cargo binstall --git https://github.com/BLig-Vox/Dominion.git dominion
 dominion --desktop
 ```
 

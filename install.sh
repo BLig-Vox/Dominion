@@ -89,7 +89,7 @@ mkdir -p -- "$bin_dir"
 stage=$(mktemp -d "$bin_dir/.dominion.XXXXXXXX")
 trap 'rm -rf -- "$stage"' EXIT
 trap 'exit 1' HUP INT TERM
-gh release download "$@" --repo alexander-vox/Dominion --dir "$stage" \
+gh release download "$@" --repo BLig-Vox/Dominion --dir "$stage" \
     --pattern "$archive" --pattern "$archive.sha256" ||
     fail 'Could not download the release. Check your GitHub CLI login and repository access.'
 (
