@@ -1,0 +1,8 @@
+[package]
+name = "dominion"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+eframe = { version = "0.37", default-features = false, features = ["default_fonts", "glow", "wayland", "x11"] }
+shadcn-egui = "0.8"
