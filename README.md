@@ -9,7 +9,7 @@ Dominion is a system resource monitor that lets you be the dictator of your own 
 
 ## Install on Linux
 
-Releases support x86-64 Linux with glibc 2.36 or newer and an X11 or Wayland desktop. Sign in with a GitHub account that can access this repository.
+Releases support x86-64 Linux with glibc 2.36 or newer and an X11 or Wayland desktop. The shell installer uses the GitHub CLI.
 
 ```sh
 gh auth login
@@ -34,15 +34,18 @@ For a first-time edge install, use `sh install.sh --edge --desktop`. The script 
 The tagged stable build is also available through Cargo Binstall. Use the GitHub repository as the manifest source.
 
 ```sh
-gh auth setup-git
 cargo binstall --git https://github.com/alexander-vox/Dominion.git dominion
 dominion --desktop
 ```
 
-Cargo Binstall uses your GitHub login for the private release asset. Repeat the Cargo Binstall command to update a Cargo-managed installation, so its package metadata stays in sync. Use the shell installer for the rolling edge channel.
+Repeat the Cargo Binstall command to update a Cargo-managed installation, so its package metadata stays in sync. Use the shell installer for the rolling edge channel.
 
 ## Build from source
 
 ```sh
 cargo run --locked
 ```
+
+## License
+
+[MIT](LICENSE)
